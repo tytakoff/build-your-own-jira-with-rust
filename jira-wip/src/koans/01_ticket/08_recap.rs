@@ -5,7 +5,7 @@ mod recap {
     ///
     /// Then get ready to dive in the next section!
 
-    #[derive(PartialEq, Debug)]
+    #[derive(Debug, Clone, PartialEq)]
     pub enum Status {
         ToDo,
         InProgress,
@@ -13,6 +13,7 @@ mod recap {
         Done,
     }
 
+    #[derive(Debug, Clone, PartialEq)]
     pub struct Ticket {
         title: String,
         description: String,
@@ -55,7 +56,7 @@ mod recap {
     mod tests {
         #[test]
         fn the_next_step_of_your_journey() {
-            let i_am_ready_to_continue = __;
+            let i_am_ready_to_continue = true;
 
             assert!(i_am_ready_to_continue);
         }

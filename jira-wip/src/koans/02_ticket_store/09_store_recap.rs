@@ -8,7 +8,7 @@
 pub mod store_recap {
     use super::id_generation::TicketId;
     use chrono::{DateTime, Utc};
-    use serde::{Deserialize, Serialize};
+    // use serde::{Deserialize, Serialize};
     use std::collections::HashMap;
     use std::error::Error;
 
@@ -202,7 +202,7 @@ pub mod store_recap {
     mod tests {
         #[test]
         fn the_next_step_of_your_journey() {
-            let i_am_ready_to_continue = __;
+            let i_am_ready_to_continue = true;
 
             assert!(i_am_ready_to_continue);
         }

@@ -25,6 +25,7 @@
 /// run `cargo run --bin jira-wip` in your terminal!
 pub mod cli {
     use super::store_recap::{TicketStore, Status, TicketDraft, TicketPatch, TicketTitle, TicketDescription};
+    use super::store_recap::ValidationError;
     use super::id_generation::TicketId;
     use std::error::Error;
     use std::str::FromStr;
@@ -35,26 +36,33 @@ pub mod cli {
     pub enum Command {
         /// Create a ticket on your board.
         Create {
-            __
+            /// Title of the new ticket.
+            #[structopt(short, long)]
+            title: TicketTitle,
+            /// Description of the new ticket.
+            #[structopt(short, long)]
+            description: TicketDescription,
         },
         /// Edit the details of an existing ticket.
         Edit {
             /// Id of the ticket you want to edit.
-            #[structopt(long)]
-            id: TicketId,
+            #[structopt(short = "id")]
+            ticket_id: TicketId,
             /// New status of the ticket.
-            #[structopt(long)]
+            #[structopt(short, long)]
             status: Option<Status>,
             /// New description of the ticket.
-            #[structopt(long)]
+            #[structopt(short, long)]
             description: Option<TicketDescription>,
             /// New title for your ticket.
-            #[structopt(long)]
+            #[structopt(short, long)]
             title: Option<TicketTitle>,
         },
         /// Delete a ticket from the store passing the ticket id.
         Delete {
-            __
+            /// Ticket Id to be deleted.
+            #[structopt(short = "id")]
+            ticket_id: TicketId,
         },
         /// List all existing tickets.
         List,
@@ -69,24 +77,36 @@ pub mod cli {
         type Err = ParsingError;
 
         fn from_str(s: &str) -> Result<Self, Self::Err> {
-            __
+            match s {
+                "todo" => Ok(Status::ToDo),
+                "inprogress" => Ok(Status::InProgress),
+                "blocked" => Ok(Status::Blocked),
+                "done" => Ok(Status::Done),
+                _ => Err(ParsingError(String::from("Unrecognized status (allowed: todo, inprogress, blocked, and done).")))
+            }
         }
     }
 
     impl FromStr for TicketTitle {
-        __
+        type Err = ValidationError;
+
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            TicketTitle::new(String::from(s))
+        }
     }
 
     impl FromStr for TicketDescription {
-        __
+        type Err = ValidationError;
+
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            TicketDescription::new(String::from(s))
+        }
     }
 
     /// Our error struct for parsing failures.
     #[derive(Debug)]
     pub struct ParsingError(String);
-
     impl Error for ParsingError { }
-
     impl std::fmt::Display for ParsingError {
         fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
             write!(f, "{}", self.0)
@@ -104,31 +124,56 @@ pub mod cli {
     /// https://doc.rust-lang.org/book/ch17-02-trait-objects.html#using-trait-objects-that-allow-for-values-of-different-types
     pub fn handle_command(ticket_store: &mut TicketStore, command: Command) -> Result<(), Box<dyn Error>> {
         match command {
-            Command::Create { description, title } => {
-                todo!()
+            Command::Create { title, description } => {
+                let ticket_draft = TicketDraft {
+                    title: title.clone(),
+                    description: description.clone()
+                };
+                ticket_store.save(ticket_draft);
+                // println!(
+                //     "Processing Command::Create {:?}, {:?}",
+                //     title, description);
+                // println!();
             }
             Command::Edit {
-                id,
+                ticket_id,
                 title,
                 description,
                 status,
             } => {
-                todo!()
+                let ticket_patch = TicketPatch {
+                    title: title.clone(),
+                    description: description.clone(),
+                    status: status.clone()
+                };
+                match ticket_store.update(&ticket_id, ticket_patch) {
+                    Some(updated_ticket) => println!(
+                        "Ticket #{:?} updated: {:?}",
+                        ticket_id, updated_ticket
+                    ),
+                    None => println!("Could not find ticket #{:?}", ticket_id)
+                }
+                // println!(
+                //     "Processing Command::Edit {:?}, {:?}, {:?}, {:?}",
+                //     ticket_id, title, description, status);
+                // println!();
             }
             Command::Delete { ticket_id } => match ticket_store.delete(&ticket_id) {
                 Some(deleted_ticket) => println!(
-                    "The following ticket has been deleted:\n{:?}",
+                    "The following ticket has been deleted {:?}",
                     deleted_ticket
                 ),
                 None => println!(
-                    "There was no ticket associated to the ticket id {:?}",
+                    "Could not find ticket #{:?}",
                     ticket_id
                 ),
             },
             Command::List => {
-                todo!()
+                println!("Processing Command::List {:?}", ticket_store.list());
+                println!();
             }
         }
+        println!("after update ticket_store = {:?}", ticket_store);
         Ok(())
     }
 

@@ -25,7 +25,20 @@ mod validation {
     /// We will learn a better way to handle recoverable errors such as this one further along,
     /// but let's rely on panic for the time being.
     fn create_ticket(title: String, description: String, status: Status) -> Ticket {
-       todo!()
+        if title.len() == 0 {
+            panic!("Title must not be an empty string.")
+        }
+        if title.len() > 50 {
+            panic!("Title must be limited to 50 characters.");
+        }
+        if description.len() > 3000 {
+            panic!("Description must be limited to 3000 characters.")
+        }
+        Ticket {
+            title,
+            description,
+            status
+        }
     }
 
     #[cfg(test)]

@@ -20,6 +20,7 @@ mod id_generation {
     // Feel free to add more fields to `TicketStore` to solve this koan!
     struct TicketStore {
         data: HashMap<TicketId, Ticket>,
+        next_id: TicketId
     }
 
     impl TicketStore {
@@ -27,6 +28,7 @@ mod id_generation {
         {
             TicketStore {
                 data: HashMap::new(),
+                next_id: 1
             }
         }
 
@@ -56,8 +58,10 @@ mod id_generation {
             self.data.get(id)
         }
 
-        fn generate_id(__) -> TicketId {
-           todo!()
+        fn generate_id(&mut self) -> TicketId {
+           let curr_id = self.next_id;
+           self.next_id += 1;
+           curr_id
         }
     }
 
