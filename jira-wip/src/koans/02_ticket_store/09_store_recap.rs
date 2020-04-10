@@ -8,11 +8,11 @@
 pub mod store_recap {
     use super::id_generation::TicketId;
     use chrono::{DateTime, Utc};
-    // use serde::{Deserialize, Serialize};
+    use serde::{Deserialize, Serialize};
     use std::collections::HashMap;
     use std::error::Error;
 
-    #[derive(Debug, PartialEq)]
+    #[derive(Debug, PartialEq, Serialize, Deserialize)]
     pub struct TicketStore {
         data: HashMap<TicketId, Ticket>,
         current_id: TicketId,
@@ -82,7 +82,7 @@ pub mod store_recap {
         }
     }
 
-    #[derive(Debug, Clone, PartialEq)]
+    #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
     pub struct TicketTitle(String);
 
     impl TicketTitle {
@@ -99,7 +99,7 @@ pub mod store_recap {
         }
     }
 
-    #[derive(Debug, Clone, PartialEq)]
+    #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
     pub struct TicketDescription(String);
 
     impl TicketDescription {
@@ -159,7 +159,7 @@ pub mod store_recap {
         }
     }
 
-    #[derive(PartialEq, Debug, Clone)]
+    #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
     pub enum Status {
         ToDo,
         InProgress,
@@ -167,7 +167,7 @@ pub mod store_recap {
         Done,
     }
 
-    #[derive(Debug, Clone, PartialEq)]
+    #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
     pub struct Ticket {
         id: TicketId,
         title: TicketTitle,
